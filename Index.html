@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAFE MONOBOX</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* BODY & BACKGROUND SAKURA */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: url('https://images.unsplash.com/photo-1558888403-6e6c26a5b708?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* SAKURA ANIMASI */
+.sakura {
+  position: fixed;
+  top: -10px;
+  width: 30px;
+  height: 30px;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Cherry_blossom_icon.svg/1200px-Cherry_blossom_icon.svg.png') no-repeat center center;
+  background-size: contain;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* HEADER */
+header {
+  background: rgba(255,0,0,0.85);
+  color:white;
+  text-align:center;
+  padding:25px 10px;
+  font-size:32px;
+  font-weight:bold;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  border-bottom: 5px solid #fff;
+  border-radius:0 0 15px 15px;
+}
+
+/* NAVBAR */
+.navbar {
+  display:none;
+  justify-content:center;
+  gap:10px;
+  background: rgba(255,0,0,0.85);
+  padding:10px;
+}
+.navbar button {
+  background:white;
+  color:#ff0000;
+  border:none;
+  padding:10px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+/* TAB CONTENT */
+.tab-content { 
+  display:none; 
+  padding:20px; 
+  background: rgba(255,255,255,0.85); 
+  border-radius: 15px;
+  margin: 10px;
+}
+
+/* LOGIN PAGE */
+#loginPage {
+  display:none;
+  height:100vh;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background: rgba(255,255,255,0.85);
+  margin: 10px;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+/* MENU */
+.menu-container {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:15px;
+}
+.menu {
+  background: rgba(255,0,0,0.85);
+  color:white;
+  padding:10px;
+  border-radius:15px;
+  text-align:center;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+.menu img {
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+/* PESANAN */
+#list li {
+  display:flex;
+  justify-content:space-between;
+  margin:5px 0;
+}
+
+/* POPUP */
+.popup {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+.box {
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  width:90%;
+  max-width:350px;
+  text-align:center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.box img {
+  margin:15px 0;
+}
+</style>
+</head>
+<body>
+
+<header>☕ <span style="color:#ff0000;">MONOBOX</span></header>
+
+<!-- NAVBAR -->
+<div class="navbar" id="navbar">
+  <button onclick="showTab('home')">Home</button>
+  <button onclick="showTab('menu')">Menu</button>
+  <button onclick="showTab('pesanan')">Pesanan</button>
+  <button onclick="showTab('riwayat')">Riwayat</button>
+  <button onclick="showTab('admin')">Admin</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <h2>Login</h2>
+  <input id="inputNama" placeholder="Nama"><br><br>
+  <button onclick="loginUser()">Masuk</button>
+</div>
+
+<!-- HOME -->
+<div id="home" class="tab-content">
+  <h2 id="welcomeText"></h2>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="tab-content">
+  <div class="menu-container">
+    <div class="menu">
+      <img src="https://images.unsplash.com/photo-1601924578851-f498c2f76cd7">
+      <p>Kopi Susu - Rp15000</p>
+      <button onclick="tambah('Kopi Susu',15000)">Pesan</button>
+    </div>
+    <div class="menu">
+      <img src="https://images.unsplash.com/photo-1617196036307-55b45bb8ff10">
+      <p>Nasi Lalapan - Rp20000</p>
+      <button onclick="tambah('Nasi Lalapan',20000)">Pesan</button>
+    </div>
+  </div>
+</div>
+
+<!-- PESANAN -->
+<div id="pesanan" class="tab-content">
+  <ul id="list"></ul>
+  <p>Total: Rp <span id="total">0</span></p>
+  <button onclick="resetPesanan()">Reset</button>
+  <button onclick="bayarOnline()">Bayar</button>
+</div>
+
+<!-- RIWAYAT -->
+<div id="riwayat" class="tab-content">
+  <h2>Riwayat</h2>
+  <div id="historyList"></div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="tab-content">
+  <h2>📊 Dashboard Admin</h2>
+  <select id="filterTanggal" onchange="tampilAdmin()">
+    <option value="semua">Semua</option>
+    <option value="hari">Hari Ini</option>
+    <option value="minggu">7 Hari</option>
+  </select>
+  <p>Total Pendapatan: <b id="totalUang">Rp 0</b></p>
+  <p>Jumlah Transaksi: <b id="jumlahTransaksi">0</b></p>
+  <p>Rata-rata: <b id="rataRata">Rp 0</b></p>
+  <canvas id="grafikPenjualan" height="100"></canvas>
+  <h3>🔥 Menu Terlaris</h3>
+  <div id="menuTerlaris"></div>
+  <br>
+  <button onclick="resetData()">Reset Data</button>
+</div>
+
+<!-- POPUP BAYAR DENGAN QR -->
+<div id="popupBayar" class="popup">
+  <div class="box">
+    <h3>Pembayaran</h3>
+    <p>Total: <span id="totalBayar"></span></p>
+    <img id="qrBayar" src="" alt="QR Code" style="width:180px; height:180px;">
+    <button onclick="prosesBayar()">Bayar Selesai</button>
+    <button onclick="tutupPopup()">Batal</button>
+  </div>
+</div>
+
+<!-- STRUK -->
+<div id="popupStruk" class="popup">
+  <div class="box">
+    <h3>🧾 Struk Pembayaran</h3>
+    <div id="isiStruk"></div>
+    <br>
+    <button onclick="printStruk()">🖨️ Print</button>
+    <button onclick="downloadStruk()">📥 Download</button>
+    <button onclick="tutupStruk()">Tutup</button>
+  </div>
+</div>
+
+<script>
+// ANIMASI SAKURA
+function buatSakura(){
+  for(let i=0;i<15;i++){
+    let sakura = document.createElement('div');
+    sakura.classList.add('sakura');
+    sakura.style.left=Math.random()*100+'vw';
+    sakura.style.animationDuration=(5+Math.random()*5)+'s';
+    sakura.style.opacity=Math.random();
+    sakura.style.transform='scale('+(0.5+Math.random())+')';
+    document.body.appendChild(sakura);
+  }
+}
+
+// PANGGIL ANIMASI
+buatSakura();
+
+// --- KODE MONOBOX ASLI ---
+window.onload = function(){
+  let user = localStorage.getItem("user");
+  if(!user){ loginPage.style.display="flex"; navbar.style.display="none"; }
+  else{ loginPage.style.display="none"; navbar.style.display="flex"; showTab('home'); welcomeText.innerText="Halo "+user; }
+}
+function loginUser(){ let nama=inputNama.value; if(nama===""){ alert("Isi nama!"); return; } localStorage.setItem("user", nama); loginPage.style.display="none"; navbar.style.display="flex"; showTab('home'); welcomeText.innerText="Halo "+nama; }
+function logout(){ localStorage.clear(); location.reload(); }
+function showTab(tab){ document.querySelectorAll('.tab-content').forEach(t=>t.style.display="none"); document.getElementById(tab).style.display="block"; if(tab==="riwayat") tampilRiwayat(); if(tab==="admin") tampilAdmin(); }
+let pesanan={}, history=JSON.parse(localStorage.getItem("history"))||[];
+function tambah(n,h){ pesanan[n]=pesanan[n]||{harga:h,qty:0}; pesanan[n].qty++; render(); }
+function kurang(n){ if(pesanan[n]){ pesanan[n].qty--; if(pesanan[n].qty<=0) delete pesanan[n]; } render(); }
+function render(){ let list=document.getElementById("list"); list.innerHTML=""; let total=0; for(let i in pesanan){ let p=pesanan[i]; total+=p.harga*p.qty; let li=document.createElement("li"); li.innerHTML=`${i} <div><button onclick="kurang('${i}')">➖</button> ${p.qty} <button onclick="tambah('${i}',${p.harga})">➕</button></div>`; list.appendChild(li); } document.getElementById("total").innerText=total; }
+function resetPesanan(){ pesanan={}; render(); }
+function bayarOnline(){ let total=0; for(let i in pesanan) total+=pesanan[i].harga*pesanan[i].qty; if(total===0){ alert("Kosong!"); return; } popupBayar.style.display="flex"; totalBayar.innerText="Rp "+total; let pembayaran=`CAFE MONOBOX\nTotal: Rp ${total}\nScan untuk bayar`; qrBayar.src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(pembayaran); }
+function tutupPopup(){ popupBayar.style.display="none"; }
+function tampilStruk(detail,total){ isiStruk.innerHTML=`<p><b>Waktu:</b> ${new Date().toLocaleString()}</p><pre>${detail}</pre><hr><b>Total: Rp ${total}</b>`; popupStruk.style.display="flex"; }
+function tutupStruk(){ popupStruk.style.display="none"; }
+function printStruk(){ let win=window.open('','width=400,height=600'); win.document.write(isiStruk.innerHTML); win.print(); }
+function downloadStruk(){ let blob=new Blob([isiStruk.innerText],{type:"text/plain"}); let link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download="struk.txt"; link.click(); }
+function prosesBayar(){ let total=0,detail=""; for(let i in pesanan){ let p=pesanan[i]; total+=p.harga*p.qty; detail+=`${i} x${p.qty} = Rp${p.harga*p.qty}\n`; } history.push({waktu:new Date().toLocaleString(), detail, total, items: JSON.parse(JSON.stringify(pesanan))}); localStorage.setItem("history", JSON.stringify(history)); tampilStruk(detail,total); tutupPopup(); pesanan={}; render(); }
+function tampilRiwayat(){ historyList.innerHTML=""; history.forEach(h=>{ let div=document.createElement("div"); div.innerHTML=`<b>${h.waktu}</b><br><pre>${h.detail}</pre><b>Total: Rp ${h.total}</b>`; historyList.appendChild(div); }); }
+let chart;
+function tampilAdmin(){ let filter=document.getElementById("filterTanggal").value; let sekarang=new Date(); let filtered=history.filter(h=>{ let tgl=new Date(h.waktu); if(filter==="hari") return tgl.toDateString()===sekarang.toDateString(); if(filter==="minggu") return (sekarang-tgl)/(1000*60*60*24)<=7; return true; }); let total=0; filtered.forEach(h=> total+=h.total); let jumlah=filtered.length; let rata=jumlah? total/jumlah:0; totalUang.innerText="Rp "+total; jumlahTransaksi.innerText=jumlah; rataRata.innerText="Rp "+Math.floor(rata); tampilGrafik(filtered); tampilMenuTerlaris(filtered); }
+function tampilGrafik(data){ let dp={}; data.forEach(h=>{ let t=new Date(h.waktu).toLocaleDateString(); dp[t]=(dp[t]||0)+h.total; }); if(chart) chart.destroy(); chart=new Chart(grafikPenjualan,{ type:'bar', data:{ labels:Object.keys(dp), datasets:[{label:'Pendapatan', data:Object.values(dp)}] } }); }
+function tampilMenuTerlaris(data){ let count={}; data.forEach(h=>{ if(!h.items) return; for(let i in h.items) count[i]=(count[i]||0)+h.items[i].qty; }); let sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]); menuTerlaris.innerHTML=""; if(sorted.length===0){ menuTerlaris.innerHTML="Belum ada data"; return; } sorted.forEach((item,i)=>{ let div=document.createElement("div"); div.innerHTML=`${i+1}. ${item[0]} (${item[1]} terjual)`; menuTerlaris.appendChild(div); }); }
+function resetData(){ if(confirm("Hapus semua data?")){ localStorage.removeItem("history"); history=[]; tampilAdmin(); } }
+</script>
+
+</body>
+</html>
